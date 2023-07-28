@@ -1,0 +1,21 @@
+{
+    "cpp": [
+        "Makefile",
+        "Makefile assembler",
+        "Makefile shared lib",
+        "CMake",
+        "CMake assembler"
+    ],
+    "rust":[
+        "cargo"
+    ],
+    "assembler x64":[
+        "Makefile",
+        "Makefile multi"
+    ],
+    "C":[
+        "CMake",
+        "CMake assembler"
+
+    ]
+}

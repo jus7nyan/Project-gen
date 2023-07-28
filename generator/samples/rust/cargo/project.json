@@ -1,0 +1,5 @@
+{
+    "actions": ["rename","path change","cmd vars","cmds exec"],
+    "cmds": ["cargo new {{{path}}}{{{name}}}"],
+    "vars": {"name":"rs-sample", "path":"./"}
+}

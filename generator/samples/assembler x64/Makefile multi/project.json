@@ -1,0 +1,9 @@
+{
+    "actions":["copy","rename","file vars","move"],
+
+    "vars":{
+        "name": "asm-multi-sample"
+    },
+
+    "vars_ch_files": ["Makefile"]
+}

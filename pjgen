@@ -1,0 +1,124 @@
+#! /usr/bin/python3
+
+import pyfzf
+import json
+import os
+
+
+#                                        App Funcs
+###############################################################################################
+def get_project():
+    with open(script_path+"generator/projects.json") as file:
+        projects = json.load(file)
+    langs = list(projects.keys())
+    while True:
+        try:
+            lang = fzf.prompt(langs)[0]
+        except:
+            exit()
+        try:
+            project = fzf.prompt(projects[lang])[0]
+            break
+        except:
+            continue
+    return lang,project
+    
+
+
+def path_work(args):
+    if args == []:
+        project_path = os.getcwd()
+    else:
+        project_path = os.path.abspath(args[0])
+    return project_path
+
+
+def get_settings(lang,project):
+    with open(script_path+f"generator/samples/{lang}/{project}/project.json") as settings:
+        settings = json.load(settings)
+    return settings
+
+def settings_handler(settings, lang, project, project_path):
+    p_actions = settings["actions"]
+    sample_path = script_path+f"generator/samples/{lang}/{project}/"
+    for i in p_actions:
+        actions[i](settings, project_path, sample_path)
+
+
+#                   MAIN
+################################################
+def main(args):
+    project_path = path_work(args)
+    lang,project = get_project()
+    settings = get_settings(lang, project)
+    settings_handler(settings, lang, project, project_path)
+    print("OK")
+    
+
+#              Actions Handlers
+################################################
+
+def vars_handler(settings, project_path, sample_path):
+    vars = settings["vars"]
+    vcf = settings["vars_ch_files"]
+    for i in vcf:
+        with open(project_path+f"/.pjgen-cache/{i}","r+") as rfile:
+            file = rfile.read()
+            for j in list(vars.keys()):
+                file = file.replace("{{{"+j+"}}}",vars[j])
+        with open(project_path+f"/.pjgen-cache/{i}","w+") as wfile:
+            wfile.write(file)
+
+def cmd_vars_handler(settings, project_path, sample_path):
+    cmds = settings["cmds"]
+    vars = settings["vars"]
+    for i in range(len(cmds)):
+        for j in vars.keys():
+            cmds[i] = cmds[i].replace("{{{"+j+"}}}",vars[j])
+
+def copy_handler(settings, project_path, sample_path):
+    os.system(f"cp -r '{sample_path}sample' '{project_path}/.pjgen-cache'")
+
+def move_handler(settings, project_path, sample_path):
+    project_name = settings["vars"]["name"]
+    os.system(f"mv {project_path}/.pjgen-cache {project_name}")
+
+def rename_handler(settings, project_path, sample_path):
+    while True:
+        try:
+            name = input("Project name: ")
+            break
+        except:
+            print()
+            exit()
+    settings["vars"]["name"] = name
+
+def path_change_handler(settings, project_path, sample_path):
+    settings["vars"]["path"] = project_path+"/"
+
+def cmds_exec_handler(settings, project_path, sample_path):
+    cmds = settings["cmds"]
+    for i in cmds:
+        os.system(i)
+
+actions = {
+    "file vars": vars_handler,
+    "cmd vars": cmd_vars_handler,
+    "copy": copy_handler,
+    "move": move_handler,
+    "rename": rename_handler,
+    "path change": path_change_handler,
+    "cmds exec": cmds_exec_handler
+}
+################################################
+
+
+
+
+
+if __name__ == "__main__":
+    from sys import argv
+    fzf = pyfzf.pyfzf.FzfPrompt()
+    # cut script name from path
+    script_path = os.path.abspath(__file__)[::-1][:os.path.abspath(__file__)[::-1].find("/"):-1] + "/"
+    main(argv[1:])

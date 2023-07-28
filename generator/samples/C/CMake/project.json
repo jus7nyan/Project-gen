@@ -1,0 +1,9 @@
+{
+    "actions":["copy","rename","file vars","move"],
+
+    "vars":{
+        "name": "C-Cmake-sample"
+    },
+
+    "vars_ch_files": ["CMakeLists.txt"]
+}
